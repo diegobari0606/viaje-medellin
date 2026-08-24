@@ -14,7 +14,8 @@ aparecen en vivo en la pantalla de los demás.
 | `sw.js` | Hace que abra aunque no haya señal |
 | `fotos/` | Las seis fotos de los lugares, de Wikimedia Commons (ver *Créditos*) |
 | `firestore.rules` | Las reglas de seguridad, listas para pegar en la consola |
-| `icon-192.png`, `icon-512.png` | El ícono (una silleta de la Feria de las Flores) |
+| `icon-192.png`, `icon-512.png` | El ícono de la app (el logo *Medellín · Mi viaje*) |
+| `icon-maskable-512.png` | La versión del ícono que Android recorta a su forma |
 | `README.md` | Esta guía |
 
 Mientras no configures Firebase, la app abre igual en **modo local**: podés probarla,

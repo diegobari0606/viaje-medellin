@@ -1,7 +1,8 @@
 // Guarda la app para que abra sin señal. Los datos del viaje los cachea Firestore aparte.
-const CACHE = "medellin-v2";
+const CACHE = "medellin-v3";
 const BASICOS = [
-  "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
+  "./", "./index.html", "./manifest.json",
+  "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
   "./fotos/medellin.jpg", "./fotos/comuna13.jpg", "./fotos/penol.jpg",
   "./fotos/parapente.jpg", "./fotos/pueblito.jpg", "./fotos/aeropuerto.jpg"
 ];
