@@ -145,6 +145,13 @@
     border-radius:10px;font-size:14px;font-weight:600;margin-top:10px}
   .agregar:hover{border-color:var(--acento,#1B2A24);color:var(--acento,#1B2A24);border-style:solid}
   .agregar.dia-nuevo{margin:6px 0 0;border-width:2px}
+  .lapiz{border:1.5px solid var(--linea);background:var(--papel-2);color:var(--tinta-suave);
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    padding:4px 9px 5px;border-radius:999px;white-space:nowrap;margin-left:auto;flex:none}
+  .lapiz:hover{border-color:var(--acento);color:var(--acento)}
+  .lapiz.activo{border-color:var(--acento);background:var(--acento);color:#fff}
+  .dia.abierto{background:var(--papel-2);border-radius:14px}
+  .dia.abierto .cuerpo{padding-right:14px}
   .colores{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
   .color{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0}
   .color[aria-pressed="true"]{border-color:var(--tinta);transform:scale(1.12)}
@@ -381,6 +388,8 @@ function normalizar(e){
 
 let estado = normalizar(structuredClone(SEMILLA));
 let editando=false, escribiendo=false, remotoPendiente=null, timerGuardar=null, ultimoEnviado="";
+// Qué días están abiertos para editar. Vacío = todos se ven en modo lectura.
+const diasAbiertos = new Set();
 
 function guardar(){
   if (modoLocal) return;
@@ -581,21 +590,24 @@ function tarjetaDia(d,i,total){
   const sub = totalDia(d);
   const esHoy = d.fecha === hoyISO();
   const hechas = (d.actividades||[]).filter(a=>a.hecha).length;
+  const abierto = editando && diasAbiertos.has(d.id);
   return `
-  <section class="dia ${esHoy?"hoy":""}" style="--acento:${acento}" data-dia="${d.id}" id="dia-${d.id}">
+  <section class="dia ${esHoy?"hoy":""} ${abierto?"abierto":""}" style="--acento:${acento}" data-dia="${d.id}" id="dia-${d.id}">
     <div class="marca">${silleta()}</div>
     <div class="cuerpo">
-      ${editando ? cabeceraEdit(d,i,total) : `
+      ${abierto ? cabeceraEdit(d,i,total) : `
         <div class="dia-cab">
           <span class="fecha">${esc(etiquetaCorta(d.fecha))}</span>
           ${esHoy?`<span class="insignia">Hoy</span>`:""}
           <h2>${esc(d.titulo)}</h2>
           ${hechas?`<span class="avance">${hechas} de ${d.actividades.length} listas</span>`:""}
+          ${editando?`<button class="lapiz no-imprimir" data-accion="editar-dia"
+            aria-expanded="false" aria-label="Editar este día">✎ Editar</button>`:""}
         </div>`}
       <ul class="plan">${(d.actividades||[]).map((a,j)=>
-        editando ? filaEdit(a,j,d.actividades.length) : filaVista(a)).join("")}</ul>
+        abierto ? filaEdit(a,j,d.actividades.length) : filaVista(a)).join("")}</ul>
       ${sub>0?`<p class="subtotal"><span>Subtotal del día</span><b>${moneda(sub)}</b></p>`:""}
-      ${editando?`<button class="agregar no-imprimir" data-accion="agregar-act">+ Agregar actividad</button>`:""}
+      ${abierto?`<button class="agregar no-imprimir" data-accion="agregar-act">+ Agregar actividad</button>`:""}
     </div>
   </section>`;
 }
@@ -609,6 +621,8 @@ function cabeceraEdit(d,i,total){
       <button class="mini" data-accion="subir-dia" ${i===0?"disabled":""} aria-label="Subir día">↑</button>
       <button class="mini" data-accion="bajar-dia" ${i===total-1?"disabled":""} aria-label="Bajar día">↓</button>
       <button class="mini borrar" data-accion="borrar-dia" aria-label="Borrar día">✕</button>
+      <button class="lapiz activo" data-accion="editar-dia" aria-expanded="true"
+        aria-label="Terminar de editar este día">Listo</button>
     </span>
   </div>
   <div class="colores">${Object.entries(PALETA).map(([n,c])=>
@@ -688,6 +702,15 @@ app.addEventListener("click",(ev)=>{
   const idAct = btn.closest("[data-act]")?.dataset.act;
   const idPend = btn.closest("[data-pend]")?.dataset.pend;
 
+  // Abrir o cerrar un día concreto. No cambia datos, así que no guarda.
+  if (accion==="editar-dia" && dia){
+    if (diasAbiertos.has(dia.id)) diasAbiertos.delete(dia.id); else diasAbiertos.add(dia.id);
+    render();
+    if (diasAbiertos.has(dia.id))
+      document.getElementById("dia-"+dia.id)?.scrollIntoView({behavior:"smooth",block:"nearest"});
+    return;
+  }
+
   if (accion==="tic" && dia){ const a = dia.actividades.find(x=>x.id===idAct); if(a) a.hecha = !a.hecha; }
   if (accion==="agregar-act" && dia) dia.actividades.push(act("",""));
   if (accion==="borrar-act" && dia){
@@ -701,6 +724,7 @@ app.addEventListener("click",(ev)=>{
   if (accion==="color" && dia) dia.color = btn.dataset.color;
   if (accion==="borrar-dia" && dia){
     if(!confirm(`¿Borrar el día "${dia.titulo||etiquetaCorta(dia.fecha)}" con todas sus actividades?`)) return;
+    diasAbiertos.delete(dia.id);
     estado.dias = estado.dias.filter(d=>d.id!==dia.id);
   }
   if (accion==="agregar-dia"){
@@ -760,6 +784,7 @@ app.addEventListener("focusout", ()=>{
 
 document.getElementById("btnEditar").addEventListener("click",(e)=>{
   editando = !editando;
+  if (!editando) diasAbiertos.clear();
   e.currentTarget.textContent = editando ? "Listo" : "Editar";
   e.currentTarget.classList.toggle("activo", editando);
   render();
