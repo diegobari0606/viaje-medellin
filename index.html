@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Itinerario Medellín · 10–15 de septiembre</title>
+<meta name="description" content="Itinerario de viaje a Medellín, editable en vivo.">
+<meta name="theme-color" content="#FFF4E4">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Medellín">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Karla:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --papel:#FFF4E4; --papel-2:#FFFBF4; --tinta:#1B2A24; --tinta-suave:#5C6B62; --linea:#E4D6BE;
+    --display:"Unbounded","Trebuchet MS",sans-serif;
+    --texto:"Karla","Helvetica Neue",Arial,sans-serif;
+    --mono:"DM Mono","Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--texto);font-size:17px;line-height:1.5}
+  button{font-family:inherit;cursor:pointer}
+  [hidden]{display:none !important}
+  a{color:inherit}
+  :focus-visible{outline:2.5px solid var(--tinta);outline-offset:2px;border-radius:4px}
+
+  /* ---------- BARRA ---------- */
+  .barra{position:sticky;top:0;z-index:40;background:rgba(255,244,228,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+  .barra-int{max-width:900px;margin:0 auto;padding:9px 22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .estado{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave);
+    display:flex;align-items:center;gap:7px;margin-right:auto}
+  .punto{width:8px;height:8px;border-radius:50%;background:#0F6B4F;flex:none}
+  .punto.guardando{background:#E4571E}
+  .punto.local{background:#8C4A2F}
+  .boton{border:1.5px solid var(--tinta);background:transparent;color:var(--tinta);font-size:13.5px;font-weight:600;
+    padding:7px 15px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .boton:hover{background:var(--tinta);color:var(--papel)}
+  .boton.activo{background:var(--tinta);color:var(--papel)}
+  .boton.fantasma{border-color:var(--linea);color:var(--tinta-suave)}
+  .boton.fantasma:hover{border-color:var(--tinta);background:var(--tinta);color:var(--papel)}
+  .menu{position:relative}
+  .menu summary{list-style:none;padding:7px 14px}
+  .menu summary::-webkit-details-marker{display:none}
+  .menu-caja{position:absolute;right:0;top:calc(100% + 8px);background:var(--papel-2);border:1.5px solid var(--tinta);
+    border-radius:12px;padding:6px;display:grid;gap:2px;min-width:200px;box-shadow:0 10px 26px rgba(27,42,36,.14);z-index:50}
+  .menu-caja button{border:0;background:transparent;color:var(--tinta);text-align:left;font-size:14.5px;
+    padding:9px 12px;border-radius:8px;width:100%}
+  .menu-caja button:hover{background:var(--papel)}
+
+  .cinta{max-width:900px;margin:0 auto;padding:11px 22px 0}
+  .cinta-int{border:1.5px solid var(--acento,#D6246E);color:var(--acento,#D6246E);border-radius:999px;
+    padding:8px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+    display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .aviso{max-width:900px;margin:14px auto 0;padding:12px 18px;border:1.5px dashed #8C4A2F;border-radius:10px;
+    color:#8C4A2F;font-size:14px;background:#fff8ee}
+  .aviso code{font-family:var(--mono);font-size:13px}
+
+  .hoja{max-width:900px;margin:0 auto;padding:0 22px 90px}
+
+  /* ---------- PORTADA ---------- */
+  .portada{padding:30px 0 0}
+  .eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--tinta-suave);margin:0 0 16px}
+  .titulo{font-family:var(--display);font-weight:800;font-size:clamp(44px,12vw,108px);line-height:.86;letter-spacing:-.03em;margin:0}
+  .titulo em{display:block;font-style:normal;font-size:clamp(15px,3.2vw,24px);font-weight:400;letter-spacing:.03em;color:#D6246E;margin-top:14px}
+  .valle{display:block;width:100%;height:auto;margin-top:24px}
+  .franja{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline;justify-content:space-between;
+    border-top:2px solid var(--tinta);border-bottom:1px solid var(--linea);padding:14px 0}
+  .fechas{font-family:var(--display);font-weight:600;font-size:16.5px;letter-spacing:-.01em;margin:0}
+  .viajeros{display:flex;flex-wrap:wrap;gap:7px}
+  .viajero{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid;border-radius:999px;padding:3px 12px 4px}
+
+  /* ---------- DÍAS ---------- */
+  .dia{display:grid;grid-template-columns:64px 1fr;scroll-margin-top:84px}
+  .marca{position:relative;display:flex;justify-content:center}
+  .marca::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;
+    background:repeating-linear-gradient(to bottom,var(--linea) 0 7px,transparent 7px 13px)}
+  .dia:first-child .marca::before{top:34px}
+  .dia:last-child .marca::before{bottom:auto;height:34px}
+  .silleta{position:relative;width:44px;height:44px;margin-top:14px;color:var(--acento);flex:none}
+  .dia.hoy .silleta{animation:latir 2.6s ease-in-out infinite}
+  @keyframes latir{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  @media (prefers-reduced-motion:reduce){.dia.hoy .silleta{animation:none}}
+
+  .cuerpo{padding:26px 0 34px 20px;min-width:0}
+  .dia.hoy .cuerpo{background:linear-gradient(90deg,color-mix(in srgb,var(--acento) 10%,transparent),transparent 62%);
+    border-radius:14px;padding-left:16px;margin-left:4px}
+  .dia-cab{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:14px}
+  .fecha{font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;
+    background:var(--acento);padding:4px 10px 5px;border-radius:4px;white-space:nowrap}
+  .insignia{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    border:1.5px solid var(--acento);color:var(--acento);border-radius:4px;padding:3px 8px 4px}
+  .dia-cab h2{font-family:var(--display);font-weight:600;font-size:clamp(19px,4.2vw,26px);letter-spacing:-.02em;line-height:1.15;margin:0}
+  .avance{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave)}
+
+  .plan{list-style:none;margin:0;padding:0}
+  .fila{display:grid;grid-template-columns:auto 96px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--linea);align-items:start}
+  .plan .fila:first-child{border-top:0;padding-top:2px}
+  .tic{width:22px;height:22px;border-radius:50%;border:2px solid var(--linea);background:transparent;padding:0;
+    margin-top:2px;display:grid;place-items:center;font-size:12px;color:transparent;flex:none}
+  .tic:hover{border-color:var(--acento,#1B2A24)}
+  .fila.lista .tic{background:var(--acento);border-color:var(--acento);color:#fff}
+  .fila.lista .que{opacity:.5}
+  .fila.lista .principal{text-decoration:line-through}
+  .hora{font-family:var(--mono);font-size:13.5px;line-height:1.6;color:var(--acento);padding-top:2px;word-break:break-word}
+  .hora.suave{color:var(--tinta-suave);text-transform:uppercase;font-size:11.5px;letter-spacing:.13em}
+  .que{font-size:17px;min-width:0}
+  .que .principal b{font-weight:800}
+  .nota{display:block;font-size:14px;color:var(--tinta-suave);margin-top:2px}
+  .marbete{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--linea);
+    border-radius:3px;padding:1px 6px 2px;margin-left:7px;color:var(--tinta-suave);white-space:nowrap}
+  .monto{font-family:var(--mono);font-size:12.5px;color:var(--acento);border:1px solid currentColor;border-radius:3px;
+    padding:1px 6px 2px;margin-left:7px;white-space:nowrap}
+  .mapa{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--acento);text-decoration:none;border-bottom:1px solid currentColor;margin-left:8px;white-space:nowrap}
+  .mapa:hover{opacity:.7}
+  .subtotal{display:flex;justify-content:flex-end;gap:8px;align-items:baseline;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-suave);padding-top:11px;border-top:1px solid var(--linea);margin-top:2px}
+  .subtotal b{font-size:14px;letter-spacing:0;color:var(--tinta);font-weight:600}
+
+  /* ---------- EDICIÓN ---------- */
+  .campo{font-family:inherit;font-size:inherit;color:inherit;width:100%;background:var(--papel-2);
+    border:1.5px solid var(--linea);border-radius:7px;padding:6px 9px;line-height:1.4}
+  .campo:focus{outline:none;border-color:var(--acento,#1B2A24);background:#fff}
+  .campo.tit{font-family:var(--display);font-weight:600;font-size:clamp(18px,4vw,24px);letter-spacing:-.02em}
+  .campo.hora-campo,.campo.monto-campo,.campo.fecha-campo,.campo.lugar-campo{font-family:var(--mono);font-size:13px}
+  .campo.nota-campo{font-size:14px;color:var(--tinta-suave)}
+  .campo.fecha-campo{width:auto;min-width:150px}
+  .fila.edit{grid-template-columns:1fr;gap:8px;background:var(--papel-2);border:1.5px solid var(--linea);
+    border-radius:12px;padding:12px;margin:8px 0}
+  .duo{display:grid;grid-template-columns:150px 1fr;gap:8px}
+  .trio{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  .acciones{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .mini{border:1.5px solid var(--linea);background:var(--papel-2);color:var(--tinta-suave);width:32px;height:32px;
+    border-radius:8px;font-size:15px;line-height:1;display:grid;place-items:center;padding:0;flex:none}
+  .mini:hover{border-color:var(--tinta);color:var(--tinta)}
+  .mini.borrar:hover{border-color:#D6246E;color:#D6246E}
+  .mini:disabled{opacity:.35;cursor:not-allowed}
+  .interruptor{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-suave)}
+  .agregar{border:1.5px dashed var(--linea);background:transparent;color:var(--tinta-suave);width:100%;padding:10px;
+    border-radius:10px;font-size:14px;font-weight:600;margin-top:10px}
+  .agregar:hover{border-color:var(--acento,#1B2A24);color:var(--acento,#1B2A24);border-style:solid}
+  .agregar.dia-nuevo{margin:6px 0 0;border-width:2px}
+  .colores{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .color{width:24px;height:24px;border-radius:50%;border:2px solid transparent;padding:0}
+  .color[aria-pressed="true"]{border-color:var(--tinta);transform:scale(1.12)}
+  .cab-edit{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+
+  /* ---------- BLOQUES FINALES ---------- */
+  .bloque{margin-top:26px;background:var(--papel-2);border:2px solid var(--tinta);border-radius:14px;padding:24px 26px 20px}
+  .bloque h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0 0 4px;letter-spacing:-.01em}
+  .bloque .sub{font-size:14px;color:var(--tinta-suave);margin:0 0 16px}
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px 26px}
+  .dato dt{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave);margin-bottom:3px}
+  .dato dd{margin:0;font-size:16.5px;font-weight:600}
+  .dato dd small{display:block;font-weight:400;font-size:14px;color:var(--tinta-suave);letter-spacing:0}
+  .pendientes{list-style:none;margin:0;padding:0}
+  .pendientes li{display:flex;gap:11px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--linea)}
+  .pendientes li:first-child{border-top:0}
+  .pendientes li.lista .tic{background:#0F6B4F;border-color:#0F6B4F;color:#fff}
+  .pendientes li.lista .txt{opacity:.5;text-decoration:line-through}
+  .pendientes .txt{flex:1;min-width:0}
+  .total{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline;justify-content:space-between;
+    margin-top:20px;padding-top:16px;border-top:2px solid var(--tinta)}
+  .total .etq{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave)}
+  .total .cifra{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.02em;text-align:right}
+  .total .cifra small{display:block;font-family:var(--texto);font-weight:400;font-size:13.5px;color:var(--tinta-suave);letter-spacing:0;margin-top:3px}
+  .tasa{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-suave)}
+  .tasa input{width:100px;font-family:var(--mono);font-size:13px;padding:4px 8px;border:1.5px solid var(--linea);
+    border-radius:6px;background:var(--papel-2);color:var(--tinta)}
+
+  details.guia{border-top:1px solid var(--linea);padding:12px 0 0;margin-top:12px}
+  details.guia summary{font-family:var(--display);font-weight:600;font-size:15px;cursor:pointer;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;gap:12px}
+  details.guia summary::-webkit-details-marker{display:none}
+  details.guia summary::after{content:"+";font-family:var(--mono);color:var(--tinta-suave);font-size:17px}
+  details.guia[open] summary::after{content:"–"}
+  details.guia ul{margin:12px 0 14px;padding-left:20px;font-size:15.5px}
+  details.guia li{margin-bottom:7px}
+  details.guia li b{font-weight:800}
+
+  .pie{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave)}
+  .flores{display:flex;gap:5px}
+  .flores i{width:9px;height:9px;border-radius:50%;display:block}
+
+  @media (max-width:600px){
+    body{font-size:16px}
+    .dia{grid-template-columns:44px 1fr}
+    .silleta{width:32px;height:32px;margin-top:18px}
+    .cuerpo{padding-left:14px}
+    .fila{grid-template-columns:auto 1fr;gap:5px 10px}
+    .fila .hora{grid-column:2;padding-top:0}
+    .fila .que{grid-column:2}
+    .fila.edit{grid-template-columns:1fr;gap:8px}
+    .duo{grid-template-columns:1fr}
+    .bloque{padding:20px 18px 16px}
+  }
+
+  @media print{
+    .barra,.aviso,.cinta,.no-imprimir,details.guia{display:none !important}
+    body{background:#fff;font-size:15px}
+    .hoja{max-width:none;padding:0}
+    .dia,.bloque{break-inside:avoid}
+    .dia.hoy .cuerpo{background:none}
+    .fila{grid-template-columns:96px 1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="barra no-imprimir">
+  <div class="barra-int">
+    <span class="estado"><span class="punto" id="punto"></span><span id="txtEstado">Conectando…</span></span>
+    <button class="boton fantasma" id="btnHoy" hidden>Hoy</button>
+    <button class="boton" id="btnEditar">Editar</button>
+    <details class="menu">
+      <summary class="boton fantasma" aria-label="Más opciones">•••</summary>
+      <div class="menu-caja">
+        <button id="btnImprimir">Imprimir o guardar PDF</button>
+        <button id="btnCompartir">Compartir el link</button>
+        <button id="btnDescargar">Descargar una copia</button>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div id="cinta"></div>
+<div id="avisoLocal"></div>
+<div class="hoja"><div id="app"></div></div>
+
+<script type="module">
+/* ============================================================
+   1. SDK (se carga en caliente: sin red, la app abre igual)
+   ============================================================ */
+let FB = null;
+try {
+  const [a, f] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js")
+  ]);
+  FB = { ...a, ...f };
+} catch(e){ console.warn("SDK de Firebase no disponible:", e); }
+
+/* ============================================================
+   2. PALETA Y DATOS INICIALES
+   ============================================================ */
+const PALETA = {
+  fucsia:"#D6246E", naranja:"#E4571E", selva:"#0F6B4F", cielo:"#2B7FBF",
+  cafe:"#8C4A2F", morado:"#6C3FA8", turquesa:"#148F8A", vino:"#9B1B47"
+};
+const nid = () => Math.random().toString(36).slice(2,9);
+const act = (hora,texto,extra={}) => ({id:nid(),hora,texto,nota:"",lugar:"",monto:0,opcional:false,hecha:false,...extra});
+
+const SEMILLA = {
+  meta:{
+    titulo:"MEDELLÍN",
+    subtitulo:"La ciudad de la eterna primavera",
+    eyebrow:"Itinerario definitivo · Colombia",
+    viajeros:["Diego","Rachell","Minor","Nina"],
+    moneda:"COP", tasaCRC:0.14
+  },
+  dias:[
+    {id:nid(), fecha:"2026-09-10", titulo:"Compras y atardecer", color:"fucsia", actividades:[
+      act("8:30 a.m.","Llegada a Medellín",{lugar:"Aeropuerto José María Córdova, Rionegro"}),
+      act("Llegando","Dejar maletas en Cavalta"),
+      act("10:30–1:30","El Hueco",{nota:"Compras en el centro",lugar:"El Hueco, Medellín"}),
+      act("Mediodía","Almuerzo"),
+      act("3:00–5:00","Los Molinos",{lugar:"Centro Comercial Los Molinos, Medellín"}),
+      act("5:30 p.m.","Mirador Las Palmas",{nota:"Atardecer sobre el valle",lugar:"Mirador Las Palmas, Medellín"}),
+      act("Noche","Provenza y cena",{lugar:"Provenza, El Poblado, Medellín"})
+    ]},
+    {id:nid(), fecha:"2026-09-11", titulo:"Comuna 13", color:"naranja", actividades:[
+      act("Mañana","Desayuno"),
+      act("Mañana","Tour Comuna 13",{nota:"Grafitis, escaleras eléctricas y música",lugar:"Comuna 13, Medellín"}),
+      act("Mediodía","Almuerzo"),
+      act("Tarde","Tarde libre para descansar"),
+      act("Noche","Noche tranquila en Laureles o Provenza",{lugar:"Laureles, Medellín"})
+    ]},
+    {id:nid(), fecha:"2026-09-12", titulo:"Guatapé y Piedra del Peñol", color:"selva", actividades:[
+      act("Temprano","Salida hacia el oriente antioqueño"),
+      act("Mañana","Piedra del Peñol",{nota:"740 escalones hasta el mirador",lugar:"Piedra del Peñol, Guatapé"}),
+      act("Mañana","Guatapé",{nota:"Zócalos de colores y malecón",lugar:"Guatapé, Antioquia"}),
+      act("Mediodía","Almuerzo"),
+      act("Tarde","Paseo en barco",{opcional:true}),
+      act("Noche","Regreso a Medellín")
+    ]},
+    {id:nid(), fecha:"2026-09-13", titulo:"Parapente", color:"cielo", actividades:[
+      act("Mañana","Parapente en San Félix",{nota:"Vuelo sobre el valle de Aburrá",lugar:"San Félix, Bello, Antioquia"}),
+      act("Mediodía","Almuerzo"),
+      act("Tarde","Tarde libre"),
+      act("Noche","Rooftop y cena en Provenza",{lugar:"Provenza, El Poblado, Medellín"})
+    ]},
+    {id:nid(), fecha:"2026-09-14", titulo:"Café, Pueblito Paisa y compras", color:"cafe", actividades:[
+      act("Mañana","Tour cafetero"),
+      act("Mediodía","Almuerzo"),
+      act("Tarde","Pueblito Paisa · Cerro Nutibara",{lugar:"Pueblito Paisa, Medellín"}),
+      act("Tarde","Compras en Santa Fe o El Tesoro",{lugar:"Centro Comercial El Tesoro, Medellín"}),
+      act("Noche","Cena de despedida",{nota:"Y dejar las maletas listas"})
+    ]},
+    {id:nid(), fecha:"2026-09-15", titulo:"Regreso a casa", color:"morado", actividades:[
+      act("6:25 a.m.","Vuelo de salida",{lugar:"Aeropuerto José María Córdova, Rionegro"}),
+      act("Madrugada","Salir del hospedaje con tiempo de sobra")
+    ]}
+  ],
+  esencial:[
+    {id:nid(), etiqueta:"Hospedaje", valor:"Cavalta", nota:"Maletas desde el jueves a la llegada"},
+    {id:nid(), etiqueta:"Llegada", valor:"Jue 10 · 8:30 a.m.", nota:""},
+    {id:nid(), etiqueta:"Salida", valor:"Mar 15 · 6:25 a.m.", nota:"Todo listo el lunes por la noche"},
+    {id:nid(), etiqueta:"Zonas base", valor:"Provenza y Laureles", nota:"Para cenas y noches tranquilas"}
+  ],
+  pendientes:[
+    {id:nid(), texto:"Reservar el tour de la Comuna 13", hecho:false},
+    {id:nid(), texto:"Reservar el transporte a Guatapé", hecho:false},
+    {id:nid(), texto:"Reservar el parapente en San Félix", hecho:false},
+    {id:nid(), texto:"Confirmar la reserva en Cavalta", hecho:false},
+    {id:nid(), texto:"Llenar el Check-Mig antes de cada vuelo", hecho:false},
+    {id:nid(), texto:"Avisar al banco que salimos del país", hecho:false},
+    {id:nid(), texto:"Traer efectivo para El Hueco y taxis", hecho:false},
+    {id:nid(), texto:"Sombrilla y chaqueta liviana en la maleta", hecho:false}
+  ]
+};
+
+const app = document.getElementById("app");
+const $punto = document.getElementById("punto");
+const $txt = document.getElementById("txtEstado");
+const $cinta = document.getElementById("cinta");
+const $btnHoy = document.getElementById("btnHoy");
+function ponEstado(t, c=""){ $txt.textContent = t; $punto.className = "punto " + c; }
+
+/* ============================================================
+   3. CONEXIÓN
+   ============================================================ */
+const RUTA = "viajes/medellin-2026";
+let db=null, refDoc=null, modoLocal=true;
+
+let cfg = null;
+try { cfg = (await import("./firebase-config.js")).firebaseConfig; } catch(e){ cfg = null; }
+
+if (FB && cfg && cfg.projectId && !String(cfg.apiKey||"").includes("PEGA")) {
+  try {
+    const appFb = FB.initializeApp(cfg);
+    try {
+      db = FB.initializeFirestore(appFb, {
+        localCache: FB.persistentLocalCache({ tabManager: FB.persistentMultipleTabManager() })
+      });
+    } catch(e){ db = FB.getFirestore(appFb); }
+    refDoc = FB.doc(db, ...RUTA.split("/"));
+    modoLocal = false;
+  } catch(e){ console.error("Firebase:", e); }
+}
+
+if (modoLocal) {
+  document.getElementById("avisoLocal").innerHTML =
+    `<div class="aviso no-imprimir"><b>Modo local.</b> Todavía no hay conexión con Firebase, así que los cambios
+     no se guardan al recargar. Copiá tus datos en <code>firebase-config.js</code> y volvé a cargar la página.</div>`;
+  ponEstado("Sin guardar","local");
+}
+
+/* ============================================================
+   4. ESTADO
+   ============================================================ */
+function normalizar(e){
+  e.meta = { titulo:"MEDELLÍN", subtitulo:"", eyebrow:"", moneda:"COP", tasaCRC:0.14, viajeros:[], ...(e.meta||{}) };
+  e.dias = (e.dias||[]).map(d => ({
+    id:d.id||nid(), fecha:d.fecha||"", titulo:d.titulo||"", color:d.color||"fucsia",
+    actividades:(d.actividades||[]).map(a => ({
+      id:a.id||nid(), hora:a.hora||"", texto:a.texto||"", nota:a.nota||"",
+      lugar:a.lugar||"", monto:Number(a.monto)||0, opcional:!!a.opcional, hecha:!!a.hecha
+    }))
+  }));
+  e.esencial = e.esencial||[];
+  e.pendientes = (e.pendientes||[]).map(p => ({id:p.id||nid(), texto:p.texto||"", hecho:!!p.hecho}));
+  return e;
+}
+
+let estado = normalizar(structuredClone(SEMILLA));
+let editando=false, escribiendo=false, remotoPendiente=null, timerGuardar=null, ultimoEnviado="";
+
+function guardar(){
+  if (modoLocal) return;
+  clearTimeout(timerGuardar);
+  ponEstado("Guardando…","guardando");
+  timerGuardar = setTimeout(async () => {
+    try {
+      ultimoEnviado = JSON.stringify(estado);
+      await FB.setDoc(refDoc, estado);
+      ponEstado("Guardado");
+    } catch(e){ console.error(e); ponEstado("No se pudo guardar"); }
+  }, 700);
+}
+
+if (!modoLocal) {
+  try {
+    const inicial = await FB.getDoc(refDoc);
+    if (!inicial.exists()) await FB.setDoc(refDoc, estado);
+  } catch(e){ console.error(e); }
+
+  FB.onSnapshot(refDoc, (snap) => {
+    if (!snap.exists()) return;
+    const remoto = normalizar(snap.data());
+    const json = JSON.stringify(remoto);
+    if (json === ultimoEnviado || json === JSON.stringify(estado)) { ponEstado("Guardado"); return; }
+    if (escribiendo) { remotoPendiente = remoto; return; }
+    estado = remoto; render(); ponEstado("Actualizado");
+  }, (e) => { console.error(e); ponEstado("Sin conexión","local"); });
+}
+
+/* ============================================================
+   5. UTILIDADES
+   ============================================================ */
+const DIAS_SEM=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const LARGO={Dom:"Domingo",Lun:"Lunes",Mar:"Martes","Mié":"Miércoles",Jue:"Jueves",Vie:"Viernes","Sáb":"Sábado"};
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+function partes(iso){
+  const [a,m,d]=String(iso||"").split("-").map(Number);
+  if(!a||!m||!d) return null;
+  return {f:new Date(Date.UTC(a,m-1,d)),a,m,d};
+}
+const etiquetaCorta = iso => { const p=partes(iso); return p ? `${DIAS_SEM[p.f.getUTCDay()]} ${p.d}` : "Día"; };
+const etiquetaLarga = iso => { const p=partes(iso); return p ? `${LARGO[DIAS_SEM[p.f.getUTCDay()]]} ${p.d} de ${MESES[p.m-1]}` : ""; };
+function hoyISO(){ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`; }
+function diasEntre(a,b){ const pa=partes(a), pb=partes(b); return (pa&&pb) ? Math.round((pb.f-pa.f)/86400000) : null; }
+
+const horaSuave = h => !/\d/.test(String(h||""));
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num = n => new Intl.NumberFormat("es-CO",{maximumFractionDigits:0}).format(Number(n)||0);
+const moneda = n => `${num(n)} ${estado.meta.moneda||"COP"}`;
+const enColones = n => `≈ ₡${num((Number(n)||0)*(Number(estado.meta.tasaCRC)||0))}`;
+const totalDia = d => (d.actividades||[]).reduce((s,a)=>s+(Number(a.monto)||0),0);
+const totalViaje = () => estado.dias.reduce((s,d)=>s+totalDia(d),0);
+const mapaURL = l => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l)}`;
+
+function silleta(){
+  const p=[[24,7],[36.02,11.98],[41,24],[36.02,36.02],[24,41],[11.98,36.02],[7,24],[11.98,11.98]];
+  return `<svg class="silleta" viewBox="0 0 48 48" aria-hidden="true">
+    <g fill="currentColor" opacity=".92">${p.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5.2"/>`).join("")}</g>
+    <circle cx="24" cy="24" r="12" fill="currentColor" opacity=".3"/>
+    <circle cx="24" cy="24" r="6.5" fill="currentColor"/>
+    <circle cx="24" cy="24" r="2.6" fill="#FFF4E4"/></svg>`;
+}
+
+const VALLE = `<svg class="valle" viewBox="0 0 860 190" role="img" aria-label="Montañas del valle de Aburrá con metrocable">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FFE0B4"/><stop offset="100%" stop-color="#FFF4E4"/></linearGradient></defs>
+  <rect width="860" height="190" fill="url(#g)"/>
+  <circle cx="672" cy="66" r="26" fill="#E4571E" opacity=".85"/>
+  <path d="M0 150 L96 78 L164 118 L232 62 L318 132 L372 104 L438 150 Z" fill="#0F6B4F" opacity=".22"/>
+  <path d="M420 150 L512 70 L590 122 L664 84 L744 130 L800 100 L860 150 Z" fill="#0F6B4F" opacity=".22"/>
+  <path d="M0 168 L74 108 L138 142 L214 92 L286 146 L352 116 L430 170 L508 118 L578 150 L646 112 L722 156 L790 128 L860 172 L860 190 L0 190 Z" fill="#0F6B4F"/>
+  <line x1="40" y1="52" x2="820" y2="120" stroke="#1B2A24" stroke-width="2"/>
+  <g fill="#1B2A24">
+    <rect x="228" y="60" width="4" height="14" transform="rotate(5 230 67)"/>
+    <rect x="212" y="72" width="36" height="26" rx="7" transform="rotate(5 230 85)"/>
+    <rect x="556" y="88" width="4" height="14" transform="rotate(5 558 95)"/>
+    <rect x="540" y="100" width="36" height="26" rx="7" transform="rotate(5 558 113)"/></g>
+  <g fill="#D6246E">
+    <circle cx="222" cy="82" r="3.4"/><circle cx="238" cy="82" r="3.4"/>
+    <circle cx="550" cy="110" r="3.4"/><circle cx="566" cy="110" r="3.4"/></g></svg>`;
+
+const GUIA = `
+<details class="guia"><summary>Antes de salir</summary><ul>
+  <li>Colombia pide el formulario <b>Check-Mig</b> en línea antes de cada vuelo. Es gratis y se llena en
+      <a href="https://apps.migracion.gov.co/pre-registro" target="_blank" rel="noopener">migracion.gov.co</a>.
+      Confirmá los tiempos ahí mismo, que a veces cambian.</li>
+  <li>Con pasaporte costarricense no se necesita visa de turismo, pero revisá que el pasaporte esté vigente.</li>
+  <li>Avisale al banco que van a usar la tarjeta fuera del país.</li>
+  <li>El enchufe es igual al de Costa Rica (110 V, patas planas): no hace falta adaptador.</li>
+</ul></details>
+
+<details class="guia"><summary>Plata y precios</summary><ul>
+  <li>Los billetes van de 2.000 a 100.000 pesos. Mil pesos colombianos son más o menos ₡140.</li>
+  <li>En centros comerciales y restaurantes se paga con tarjeta sin problema. Para <b>El Hueco</b>,
+      taxis y pueblos, llevá efectivo.</li>
+  <li>La propina del 10 % es voluntaria y la preguntan antes de cobrar: se puede decir que no.</li>
+  <li>Sacá plata en cajeros dentro de centros comerciales, no en la calle.</li>
+</ul></details>
+
+<details class="guia"><summary>Moverse en la ciudad</summary><ul>
+  <li>El metro es rápido y barato. La <b>tarjeta Cívica</b> se compra en cualquier estación y sirve para todo el sistema.</li>
+  <li>De noche, mejor pedir el carro por app que tomarlo en la calle.</li>
+  <li>Del aeropuerto a El Poblado son unos 45 minutos por la vía Las Palmas.</li>
+</ul></details>
+
+<details class="guia"><summary>Clima y qué llevar</summary><ul>
+  <li>Medellín está a 1.495 m: entre 20 y 28 °C todo el año, con aguaceros fuertes por la tarde. Sombrilla o capa.</li>
+  <li>Guatapé y San Félix son más altos y frescos: una chaqueta liviana.</li>
+  <li>La Piedra del Peñol son 740 escalones. Tenis cómodos, agua y bloqueador.</li>
+  <li>Para el parapente conviene ir temprano: menos viento y mejor vista.</li>
+</ul></details>
+
+<details class="guia"><summary>Números y frases</summary><ul>
+  <li>Emergencias en toda Colombia: <b>123</b>.</li>
+  <li><b>"No dar papaya"</b>: no andar mostrando el celular, la cámara ni la plata en la calle.</li>
+  <li><b>"¿Me regala…?"</b> es la forma normal de pedir algo en un local. <b>"A la orden"</b> es el "con gusto".</li>
+  <li>Guardá esta página en la pantalla de inicio del teléfono: abre aunque se caiga la señal.</li>
+</ul></details>`;
+
+/* ============================================================
+   6. RENDER
+   ============================================================ */
+function render(){
+  const dias = estado.dias||[];
+  const rango = dias.length ? `${etiquetaLarga(dias[0].fecha)} → ${etiquetaLarga(dias[dias.length-1].fecha)}` : "";
+  const colores = Object.values(PALETA);
+  const total = totalViaje();
+  const personas = Math.max(1,(estado.meta.viajeros||[]).length);
+
+  app.innerHTML = `
+  <header class="portada">
+    <p class="eyebrow">${esc(estado.meta.eyebrow)}</p>
+    <h1 class="titulo">${esc(estado.meta.titulo)}<em>${esc(estado.meta.subtitulo)}</em></h1>
+    ${VALLE}
+    <div class="franja">
+      <p class="fechas">${esc(rango)}</p>
+      <div class="viajeros">${(estado.meta.viajeros||[]).map((v,i)=>
+        `<span class="viajero" style="border-color:${colores[i%colores.length]};color:${colores[i%colores.length]}">${esc(v)}</span>`).join("")}</div>
+    </div>
+  </header>
+
+  <main>${dias.map((d,i)=>tarjetaDia(d,i,dias.length)).join("")}
+    ${editando?`<button class="agregar dia-nuevo no-imprimir" data-accion="agregar-dia">+ Agregar un día</button>`:""}
+  </main>
+
+  <section class="bloque">
+    <h3>Pendientes</h3>
+    <p class="sub">Lo que hay que dejar listo antes de salir. Cualquiera puede marcarlo.</p>
+    <ul class="pendientes">${(estado.pendientes||[]).map(p=>`
+      <li class="${p.hecho?"lista":""}" data-pend="${p.id}">
+        <button class="tic" data-accion="tic-pendiente" aria-pressed="${p.hecho}" aria-label="Marcar pendiente">✓</button>
+        ${editando
+          ? `<input class="campo txt" value="${esc(p.texto)}" data-campo="pendiente" aria-label="Pendiente">
+             <button class="mini borrar" data-accion="borrar-pendiente" aria-label="Borrar pendiente">✕</button>`
+          : `<span class="txt">${esc(p.texto)}</span>`}
+      </li>`).join("")}</ul>
+    ${editando?`<button class="agregar no-imprimir" data-accion="agregar-pendiente">+ Agregar pendiente</button>`:""}
+  </section>
+
+  <section class="bloque">
+    <h3>Lo esencial</h3>
+    <div class="rejilla">
+      <dl class="dato"><dt>Viajeros</dt><dd>${personas} personas<small>${esc((estado.meta.viajeros||[]).join(", "))}</small></dd></dl>
+      ${(estado.esencial||[]).map(e=>`<dl class="dato"><dt>${esc(e.etiqueta)}</dt>
+        <dd>${esc(e.valor)}${e.nota?`<small>${esc(e.nota)}</small>`:""}</dd></dl>`).join("")}
+    </div>
+    <div class="total">
+      <span class="etq">Presupuesto anotado</span>
+      ${total>0
+        ? `<span class="cifra">${moneda(total)}
+             <small>${enColones(total)} · ${moneda(Math.round(total/personas))} por persona</small></span>`
+        : `<span class="cifra" style="font-size:15px;font-family:var(--texto);font-weight:400;color:var(--tinta-suave)">
+             Anotá montos en las actividades y acá se suman solos</span>`}
+    </div>
+    ${editando?`<div class="tasa no-imprimir"><label for="tasa">1 peso colombiano =</label>
+      <input id="tasa" type="number" step="0.001" min="0" value="${estado.meta.tasaCRC}" data-campo="tasa"><span>colones · actualizá el dato antes de viajar</span></div>`:""}
+  </section>
+
+  <section class="bloque no-imprimir">
+    <h3>Antes de ir</h3>
+    <p class="sub">Lo práctico que conviene tener a mano.</p>
+    ${GUIA}
+  </section>
+
+  <footer class="pie">
+    <span>Itinerario Medellín</span>
+    <span class="flores">${Object.values(PALETA).map(c=>`<i style="background:${c}"></i>`).join("")}</span>
+    <span>Nos vemos en el valle</span>
+  </footer>`;
+
+  pintarCinta();
+}
+
+function tarjetaDia(d,i,total){
+  const acento = PALETA[d.color]||PALETA.fucsia;
+  const sub = totalDia(d);
+  const esHoy = d.fecha === hoyISO();
+  const hechas = (d.actividades||[]).filter(a=>a.hecha).length;
+  return `
+  <section class="dia ${esHoy?"hoy":""}" style="--acento:${acento}" data-dia="${d.id}" id="dia-${d.id}">
+    <div class="marca">${silleta()}</div>
+    <div class="cuerpo">
+      ${editando ? cabeceraEdit(d,i,total) : `
+        <div class="dia-cab">
+          <span class="fecha">${esc(etiquetaCorta(d.fecha))}</span>
+          ${esHoy?`<span class="insignia">Hoy</span>`:""}
+          <h2>${esc(d.titulo)}</h2>
+          ${hechas?`<span class="avance">${hechas} de ${d.actividades.length} listas</span>`:""}
+        </div>`}
+      <ul class="plan">${(d.actividades||[]).map((a,j)=>
+        editando ? filaEdit(a,j,d.actividades.length) : filaVista(a)).join("")}</ul>
+      ${sub>0?`<p class="subtotal"><span>Subtotal del día</span><b>${moneda(sub)}</b></p>`:""}
+      ${editando?`<button class="agregar no-imprimir" data-accion="agregar-act">+ Agregar actividad</button>`:""}
+    </div>
+  </section>`;
+}
+
+function cabeceraEdit(d,i,total){
+  return `
+  <div class="cab-edit">
+    <span class="fecha">${esc(etiquetaCorta(d.fecha))}</span>
+    <input class="campo fecha-campo" type="date" value="${esc(d.fecha)}" data-campo="fecha" aria-label="Fecha del día">
+    <span class="acciones">
+      <button class="mini" data-accion="subir-dia" ${i===0?"disabled":""} aria-label="Subir día">↑</button>
+      <button class="mini" data-accion="bajar-dia" ${i===total-1?"disabled":""} aria-label="Bajar día">↓</button>
+      <button class="mini borrar" data-accion="borrar-dia" aria-label="Borrar día">✕</button>
+    </span>
+  </div>
+  <div class="colores">${Object.entries(PALETA).map(([n,c])=>
+    `<button class="color" style="background:${c}" data-accion="color" data-color="${n}"
+      aria-pressed="${d.color===n}" aria-label="Color ${n}"></button>`).join("")}</div>
+  <input class="campo tit" value="${esc(d.titulo)}" data-campo="titulo" placeholder="Título del día" aria-label="Título del día">`;
+}
+
+function filaVista(a){
+  return `<li class="fila ${a.hecha?"lista":""}" data-act="${a.id}">
+    <button class="tic no-imprimir" data-accion="tic" aria-pressed="${a.hecha}" aria-label="Marcar como hecha">✓</button>
+    <span class="hora ${horaSuave(a.hora)?"suave":""}">${esc(a.hora)}</span>
+    <span class="que">
+      <span class="principal">${esc(a.texto)}
+        ${a.opcional?`<span class="marbete">Opcional</span>`:""}
+        ${Number(a.monto)>0?`<span class="monto">${moneda(a.monto)}</span>`:""}
+        ${a.lugar?`<a class="mapa no-imprimir" href="${esc(mapaURL(a.lugar))}" target="_blank" rel="noopener">◎ Mapa</a>`:""}</span>
+      ${a.nota?`<span class="nota">${esc(a.nota)}</span>`:""}
+    </span></li>`;
+}
+
+function filaEdit(a,j,total){
+  return `<li class="fila edit" data-act="${a.id}">
+    <div class="duo">
+      <input class="campo hora-campo" value="${esc(a.hora)}" data-campo="hora" placeholder="8:30 a.m. o Mañana" aria-label="Hora">
+      <input class="campo" value="${esc(a.texto)}" data-campo="texto" placeholder="¿Qué van a hacer?" aria-label="Actividad">
+    </div>
+    <input class="campo nota-campo" value="${esc(a.nota)}" data-campo="nota" placeholder="Nota (opcional)" aria-label="Nota">
+    <input class="campo lugar-campo" value="${esc(a.lugar)}" data-campo="lugar" placeholder="Lugar para el mapa (opcional)" aria-label="Lugar">
+    <div class="trio">
+      <span class="acciones">
+        <label class="interruptor"><input type="checkbox" data-campo="opcional" ${a.opcional?"checked":""}> Opcional</label>
+        <input class="campo monto-campo" style="width:130px" type="number" min="0" step="1000"
+          value="${Number(a.monto)||""}" data-campo="monto" placeholder="Presupuesto" aria-label="Presupuesto">
+      </span>
+      <span class="acciones">
+        <button class="mini" data-accion="subir-act" ${j===0?"disabled":""} aria-label="Subir actividad">↑</button>
+        <button class="mini" data-accion="bajar-act" ${j===total-1?"disabled":""} aria-label="Bajar actividad">↓</button>
+        <button class="mini borrar" data-accion="borrar-act" aria-label="Borrar actividad">✕</button>
+      </span>
+    </div></li>`;
+}
+
+function pintarCinta(){
+  const dias = estado.dias||[];
+  if (!dias.length){ $cinta.innerHTML=""; $btnHoy.hidden=true; return; }
+  const hoy = hoyISO();
+  const idx = dias.findIndex(d=>d.fecha===hoy);
+  const faltan = diasEntre(hoy, dias[0].fecha);
+  let html = "", acento = PALETA[dias[0].color]||PALETA.fucsia;
+
+  if (idx >= 0){
+    acento = PALETA[dias[idx].color]||acento;
+    html = `<span>Hoy · día ${idx+1} de ${dias.length}</span><span>${esc(dias[idx].titulo)}</span>`;
+    $btnHoy.hidden = false;
+    $btnHoy.dataset.destino = "dia-" + dias[idx].id;
+  } else if (faltan !== null && faltan > 0){
+    html = `<span>${faltan===1 ? "Falta 1 día" : `Faltan ${faltan} días`}</span><span>para Medellín</span>`;
+    $btnHoy.hidden = true;
+  } else {
+    $btnHoy.hidden = true;
+  }
+  $cinta.innerHTML = html ? `<div class="cinta no-imprimir"><span class="cinta-int" style="--acento:${acento}">${html}</span></div>` : "";
+}
+
+/* ============================================================
+   7. INTERACCIÓN
+   ============================================================ */
+const buscarDia = id => estado.dias.find(d=>d.id===id);
+const mover = (arr,i,paso) => { const j=i+paso; if(j<0||j>=arr.length) return; [arr[i],arr[j]]=[arr[j],arr[i]]; };
+
+app.addEventListener("click",(ev)=>{
+  const btn = ev.target.closest("[data-accion]");
+  if (!btn) return;
+  const accion = btn.dataset.accion;
+  const dia = buscarDia(btn.closest("[data-dia]")?.dataset.dia);
+  const idAct = btn.closest("[data-act]")?.dataset.act;
+  const idPend = btn.closest("[data-pend]")?.dataset.pend;
+
+  if (accion==="tic" && dia){ const a = dia.actividades.find(x=>x.id===idAct); if(a) a.hecha = !a.hecha; }
+  if (accion==="agregar-act" && dia) dia.actividades.push(act("",""));
+  if (accion==="borrar-act" && dia){
+    if(!confirm("¿Borrar esta actividad?")) return;
+    dia.actividades = dia.actividades.filter(a=>a.id!==idAct);
+  }
+  if ((accion==="subir-act"||accion==="bajar-act") && dia)
+    mover(dia.actividades, dia.actividades.findIndex(a=>a.id===idAct), accion==="subir-act"?-1:1);
+  if ((accion==="subir-dia"||accion==="bajar-dia") && dia)
+    mover(estado.dias, estado.dias.findIndex(d=>d.id===dia.id), accion==="subir-dia"?-1:1);
+  if (accion==="color" && dia) dia.color = btn.dataset.color;
+  if (accion==="borrar-dia" && dia){
+    if(!confirm(`¿Borrar el día "${dia.titulo||etiquetaCorta(dia.fecha)}" con todas sus actividades?`)) return;
+    estado.dias = estado.dias.filter(d=>d.id!==dia.id);
+  }
+  if (accion==="agregar-dia"){
+    const ult = estado.dias[estado.dias.length-1];
+    let fecha = hoyISO();
+    if (ult){ const p=partes(ult.fecha); if(p){ p.f.setUTCDate(p.f.getUTCDate()+1); fecha = p.f.toISOString().slice(0,10); } }
+    const usados = estado.dias.map(d=>d.color);
+    const color = Object.keys(PALETA).find(c=>!usados.includes(c)) || "fucsia";
+    estado.dias.push({id:nid(), fecha, titulo:"Día nuevo", color, actividades:[act("","")]});
+  }
+  if (accion==="tic-pendiente"){ const p = estado.pendientes.find(x=>x.id===idPend); if(p) p.hecho = !p.hecho; }
+  if (accion==="agregar-pendiente") estado.pendientes.push({id:nid(), texto:"", hecho:false});
+  if (accion==="borrar-pendiente"){
+    if(!confirm("¿Borrar este pendiente?")) return;
+    estado.pendientes = estado.pendientes.filter(p=>p.id!==idPend);
+  }
+
+  render(); guardar();
+});
+
+app.addEventListener("input",(ev)=>{
+  const campo = ev.target.dataset.campo;
+  if (!campo) return;
+
+  if (campo==="tasa"){ estado.meta.tasaCRC = Number(ev.target.value)||0; guardar(); return; }
+  if (campo==="pendiente"){
+    const id = ev.target.closest("[data-pend]")?.dataset.pend;
+    const p = estado.pendientes.find(x=>x.id===id); if(p) p.texto = ev.target.value;
+    guardar(); return;
+  }
+
+  const dia = buscarDia(ev.target.closest("[data-dia]")?.dataset.dia);
+  if (!dia) return;
+  const idAct = ev.target.closest("[data-act]")?.dataset.act;
+
+  if (idAct){
+    const a = dia.actividades.find(x=>x.id===idAct); if(!a) return;
+    if (campo==="opcional") a.opcional = ev.target.checked;
+    else if (campo==="monto") a.monto = Number(ev.target.value)||0;
+    else a[campo] = ev.target.value;
+  } else {
+    dia[campo] = ev.target.value;
+    if (campo==="fecha"){
+      const chip = ev.target.closest(".cuerpo")?.querySelector(".fecha");
+      if (chip) chip.textContent = etiquetaCorta(ev.target.value);
+      pintarCinta();
+    }
+  }
+  guardar();
+});
+
+app.addEventListener("focusin", ()=>{ escribiendo = true; });
+app.addEventListener("focusout", ()=>{
+  escribiendo = false;
+  if (remotoPendiente){ estado = remotoPendiente; remotoPendiente = null; render(); }
+});
+
+document.getElementById("btnEditar").addEventListener("click",(e)=>{
+  editando = !editando;
+  e.currentTarget.textContent = editando ? "Listo" : "Editar";
+  e.currentTarget.classList.toggle("activo", editando);
+  render();
+});
+$btnHoy.addEventListener("click",()=>{
+  document.getElementById($btnHoy.dataset.destino)?.scrollIntoView({behavior:"smooth",block:"start"});
+});
+function cerrarMenu(){ document.querySelector(".menu")?.removeAttribute("open"); }
+document.getElementById("btnImprimir").addEventListener("click",()=>{ cerrarMenu(); window.print(); });
+document.getElementById("btnCompartir").addEventListener("click", async ()=>{
+  cerrarMenu();
+  const datos = {title:"Itinerario Medellín", text:"Nuestro plan del 10 al 15 de septiembre", url:location.href};
+  try {
+    if (navigator.share) await navigator.share(datos);
+    else { await navigator.clipboard.writeText(location.href); ponEstado("Link copiado"); }
+  } catch(e){}
+});
+document.getElementById("btnDescargar").addEventListener("click",()=>{
+  cerrarMenu();
+  const blob = new Blob([JSON.stringify(estado,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `itinerario-medellin-${hoyISO()}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+});
+document.addEventListener("click",(e)=>{ if(!e.target.closest(".menu")) cerrarMenu(); });
+
+render();
+if (!modoLocal) ponEstado("Guardado");
+
+// Funciona sin señal una vez abierta
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
