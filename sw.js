@@ -1,6 +1,10 @@
 // Guarda la app para que abra sin señal. Los datos del viaje los cachea Firestore aparte.
-const CACHE = "medellin-v1";
-const BASICOS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE = "medellin-v2";
+const BASICOS = [
+  "./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
+  "./fotos/medellin.jpg", "./fotos/comuna13.jpg", "./fotos/penol.jpg",
+  "./fotos/parapente.jpg", "./fotos/pueblito.jpg", "./fotos/aeropuerto.jpg"
+];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASICOS)).then(() => self.skipWaiting()));

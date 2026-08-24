@@ -145,6 +145,25 @@
     border-radius:10px;font-size:14px;font-weight:600;margin-top:10px}
   .agregar:hover{border-color:var(--acento,#1B2A24);color:var(--acento,#1B2A24);border-style:solid}
   .agregar.dia-nuevo{margin:6px 0 0;border-width:2px}
+  .foto{margin:0 0 16px;position:relative}
+  .foto img{display:block;width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:12px;
+    background:var(--papel-2);box-shadow:0 1px 0 var(--linea)}
+  .foto::after{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
+    box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--acento) 45%,transparent)}
+  .foto figcaption{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--tinta-suave);margin-top:6px;line-height:1.5}
+  .foto figcaption a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+  .foto figcaption a:hover{color:var(--acento)}
+  .fotos-elegir{margin-top:10px}
+  .etq-mini{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--tinta-suave);margin-bottom:6px}
+  .tiras{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+  .tira{width:62px;height:40px;padding:0;border:2px solid var(--linea);border-radius:8px;
+    overflow:hidden;background:var(--papel-2);flex:none}
+  .tira img{width:100%;height:100%;object-fit:cover;display:block}
+  .tira[aria-pressed="true"]{border-color:var(--acento)}
+  .tira.ninguna{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--tinta-suave);display:grid;place-items:center;line-height:1.2}
   .lapiz{border:1.5px solid var(--linea);background:var(--papel-2);color:var(--tinta-suave);
     font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
     padding:4px 9px 5px;border-radius:999px;white-space:nowrap;margin-left:auto;flex:none}
@@ -205,6 +224,7 @@
     .fila .hora{grid-column:2;padding-top:0}
     .fila .que{grid-column:2}
     .fila.edit{grid-template-columns:1fr;gap:8px}
+    .foto img{aspect-ratio:16/9}
     .duo{grid-template-columns:1fr}
     .bloque{padding:20px 18px 16px}
   }
@@ -214,6 +234,7 @@
     body{background:#fff;font-size:15px}
     .hoja{max-width:none;padding:0}
     .dia,.bloque{break-inside:avoid}
+    .foto{display:none}
     .dia.hoy .cuerpo{background:none}
     .fila{grid-template-columns:96px 1fr}
   }
@@ -261,6 +282,43 @@ const PALETA = {
   fucsia:"#D6246E", naranja:"#E4571E", selva:"#0F6B4F", cielo:"#2B7FBF",
   cafe:"#8C4A2F", morado:"#6C3FA8", turquesa:"#148F8A", vino:"#9B1B47"
 };
+// Fotos de cada día. Todas de Wikimedia Commons con licencia libre;
+// el crédito sale bajo la imagen porque CC BY y CC BY-SA lo exigen.
+const FOTOS = {
+  medellin:{
+    archivo:"medellin.jpg", alt:"Panorámica de Medellín desde el Cerro El Picacho",
+    pie:"Medellín desde el Cerro El Picacho", autor:"Luis90f", lic:"CC BY-SA 4.0",
+    licUrl:"https://creativecommons.org/licenses/by-sa/4.0/",
+    fuente:"https://commons.wikimedia.org/wiki/File:Panor%C3%A1mica_de_Medell%C3%ADn_desde_el_Cerro_El_Picacho.jpg"},
+  comuna13:{
+    archivo:"comuna13.jpg", alt:"Escaleras eléctricas de la Comuna 13",
+    pie:"Escaleras eléctricas de la Comuna 13", autor:"Juan Gómez", lic:"CC BY 2.0",
+    licUrl:"https://creativecommons.org/licenses/by/2.0/",
+    fuente:"https://commons.wikimedia.org/wiki/File:Escaleras_el%C3%A9ctricas_de_la_comuna_13,_Medell%C3%ADn_-_04.jpg"},
+  penol:{
+    archivo:"penol.jpg", alt:"La Piedra del Peñol y el embalse vistos desde un dron",
+    pie:"La Piedra del Peñol y el embalse", autor:"Juan Gómez", lic:"CC BY 2.0",
+    licUrl:"https://creativecommons.org/licenses/by/2.0/",
+    fuente:"https://commons.wikimedia.org/wiki/File:Piedra_y_Embalse_del_Pe%C3%B1ol_desde_dron_05.jpg"},
+  parapente:{
+    archivo:"parapente.jpg", alt:"Parapente sobre los cerros del valle de Aburrá",
+    pie:"Parapente sobre el valle de Aburrá", autor:"Alejandro Bayer Tamayo", lic:"CC BY-SA 2.0",
+    licUrl:"https://creativecommons.org/licenses/by-sa/2.0/",
+    fuente:"https://commons.wikimedia.org/wiki/File:Cerros_del_occidente_del_valle_de_Aburr%C3%A1_-_Flickr_-_Alejandro_Bayer.jpg"},
+  pueblito:{
+    archivo:"pueblito.jpg", alt:"Pueblito Paisa en el Cerro Nutibara",
+    pie:"Pueblito Paisa, Cerro Nutibara", autor:"RH Ruggles", lic:"CC BY-SA 4.0",
+    licUrl:"https://creativecommons.org/licenses/by-sa/4.0/",
+    fuente:"https://commons.wikimedia.org/wiki/File:Pueblito_Paisa,_Medellin,_Antioquia,_Colombia.jpg"},
+  aeropuerto:{
+    archivo:"aeropuerto.jpg", alt:"Aeropuerto Internacional José María Córdova",
+    pie:"Aeropuerto José María Córdova", autor:"SajoR", lic:"Dominio público",
+    licUrl:"https://commons.wikimedia.org/wiki/Template:PD-self",
+    fuente:"https://commons.wikimedia.org/wiki/File:Aeropuerto_Jose_Maria_Cordova-Exterior1.JPG"}
+};
+// Qué foto le toca a cada día si nadie eligió una todavía.
+const FOTOS_POR_DEFECTO = ["medellin","comuna13","penol","parapente","pueblito","aeropuerto"];
+
 const nid = () => Math.random().toString(36).slice(2,9);
 const act = (hora,texto,extra={}) => ({id:nid(),hora,texto,nota:"",lugar:"",monto:0,opcional:false,hecha:false,...extra});
 
@@ -374,8 +432,9 @@ if (modoLocal) {
    ============================================================ */
 function normalizar(e){
   e.meta = { titulo:"MEDELLÍN", subtitulo:"", eyebrow:"", moneda:"COP", tasaCRC:0.14, viajeros:[], ...(e.meta||{}) };
-  e.dias = (e.dias||[]).map(d => ({
+  e.dias = (e.dias||[]).map((d,i) => ({
     id:d.id||nid(), fecha:d.fecha||"", titulo:d.titulo||"", color:d.color||"fucsia",
+    foto: typeof d.foto === "string" ? d.foto : (FOTOS_POR_DEFECTO[i] || ""),
     actividades:(d.actividades||[]).map(a => ({
       id:a.id||nid(), hora:a.hora||"", texto:a.texto||"", nota:a.nota||"",
       lugar:a.lugar||"", monto:Number(a.monto)||0, opcional:!!a.opcional, hecha:!!a.hecha
@@ -595,6 +654,7 @@ function tarjetaDia(d,i,total){
   <section class="dia ${esHoy?"hoy":""} ${abierto?"abierto":""}" style="--acento:${acento}" data-dia="${d.id}" id="dia-${d.id}">
     <div class="marca">${silleta()}</div>
     <div class="cuerpo">
+      ${foto(d)}
       ${abierto ? cabeceraEdit(d,i,total) : `
         <div class="dia-cab">
           <span class="fecha">${esc(etiquetaCorta(d.fecha))}</span>
@@ -610,6 +670,18 @@ function tarjetaDia(d,i,total){
       ${abierto?`<button class="agregar no-imprimir" data-accion="agregar-act">+ Agregar actividad</button>`:""}
     </div>
   </section>`;
+}
+
+// La banda de foto que encabeza cada día, con el crédito que pide la licencia.
+function foto(d){
+  const f = FOTOS[d.foto];
+  if (!f) return "";
+  return `<figure class="foto">
+    <img src="./fotos/${f.archivo}" alt="${esc(f.alt)}" loading="lazy" decoding="async" width="1200" height="500">
+    <figcaption>${esc(f.pie)} ·
+      <a href="${esc(f.fuente)}" target="_blank" rel="noopener">${esc(f.autor)}</a>,
+      <a href="${esc(f.licUrl)}" target="_blank" rel="noopener">${esc(f.lic)}</a></figcaption>
+  </figure>`;
 }
 
 function cabeceraEdit(d,i,total){
@@ -628,7 +700,17 @@ function cabeceraEdit(d,i,total){
   <div class="colores">${Object.entries(PALETA).map(([n,c])=>
     `<button class="color" style="background:${c}" data-accion="color" data-color="${n}"
       aria-pressed="${d.color===n}" aria-label="Color ${n}"></button>`).join("")}</div>
-  <input class="campo tit" value="${esc(d.titulo)}" data-campo="titulo" placeholder="Título del día" aria-label="Título del día">`;
+  <input class="campo tit" value="${esc(d.titulo)}" data-campo="titulo" placeholder="Título del día" aria-label="Título del día">
+  <div class="fotos-elegir">
+    <span class="etq-mini">Foto del día</span>
+    <div class="tiras">
+      <button class="tira ninguna" data-accion="foto" data-foto=""
+        aria-pressed="${!FOTOS[d.foto]}" title="Sin foto">Sin foto</button>
+      ${Object.entries(FOTOS).map(([k,f])=>
+        `<button class="tira" data-accion="foto" data-foto="${k}" aria-pressed="${d.foto===k}" title="${esc(f.pie)}">
+          <img src="./fotos/${f.archivo}" alt="" loading="lazy" decoding="async"></button>`).join("")}
+    </div>
+  </div>`;
 }
 
 function filaVista(a){
@@ -722,6 +804,7 @@ app.addEventListener("click",(ev)=>{
   if ((accion==="subir-dia"||accion==="bajar-dia") && dia)
     mover(estado.dias, estado.dias.findIndex(d=>d.id===dia.id), accion==="subir-dia"?-1:1);
   if (accion==="color" && dia) dia.color = btn.dataset.color;
+  if (accion==="foto" && dia) dia.foto = btn.dataset.foto;
   if (accion==="borrar-dia" && dia){
     if(!confirm(`¿Borrar el día "${dia.titulo||etiquetaCorta(dia.fecha)}" con todas sus actividades?`)) return;
     diasAbiertos.delete(dia.id);
