@@ -1,15 +1,16 @@
 // ============================================================
 //  CONFIGURACIÓN DE FIREBASE
-//  Pegá aquí los datos de tu proyecto (Firebase > Configuración
-//  del proyecto > Tus apps > Configuración del SDK).
-//  Sin esto la app funciona, pero no guarda nada.
+//  Datos del proyecto viaje-medellin-bd2da.
+//  La apiKey no es una contraseña: identifica al proyecto y es
+//  pública por diseño. Lo que protege los datos son las reglas
+//  de Firestore (ver firestore.rules).
 // ============================================================
 
 export const firebaseConfig = {
-  apiKey: "PEGA_AQUI_TU_API_KEY",
-  authDomain: "PEGA_AQUI.firebaseapp.com",
-  projectId: "PEGA_AQUI",
-  storageBucket: "PEGA_AQUI.appspot.com",
-  messagingSenderId: "PEGA_AQUI",
-  appId: "PEGA_AQUI"
+  apiKey: "AIzaSyAOLqbaKWEuyGSqURJXhHsDIsmhuNLaGmM",
+  authDomain: "viaje-medellin-bd2da.firebaseapp.com",
+  projectId: "viaje-medellin-bd2da",
+  storageBucket: "viaje-medellin-bd2da.firebasestorage.app",
+  messagingSenderId: "1064056661974",
+  appId: "1:1064056661974:web:1fef078b767b8599742677"
 };
