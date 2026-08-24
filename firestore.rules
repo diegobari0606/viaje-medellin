@@ -1,0 +1,13 @@
+// Reglas de Firestore para el itinerario.
+// Pegá esto en: Firebase Console > Firestore Database > Reglas > Publicar.
+//
+// Cualquiera con el link puede leer y editar, pero SOLO ese documento
+// y SOLO hasta el 15 de octubre de 2026. Después queda cerrado solo.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /viajes/medellin-2026 {
+      allow read, write: if request.time < timestamp.date(2026, 10, 15);
+    }
+  }
+}
